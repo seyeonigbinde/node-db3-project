@@ -55,9 +55,9 @@ const validateScheme = (req, res, next) => {
   }
 */
 const validateStep = (req, res, next) => {
-  const { instruction, step_number } = req.body
-  if (!instruction.trim() || instruction === undefined || 
-    typeof instruction !== 'string' ) 
+  const { instructions, step_number } = req.body
+  if (!instructions || instructions === undefined || 
+    typeof instructions !== 'string' ) 
     return next({
     status: 400,
     message: 'invalid step',
