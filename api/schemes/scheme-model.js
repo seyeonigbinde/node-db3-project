@@ -1,4 +1,14 @@
-function find() { // EXERCISE A
+const db = require('../../data/db-config')
+
+async function find() { // EXERCISE A
+  const rows = await db('schemes as sc')
+  .count('st.step_id as number_of_steps')
+  .leftJoin('steps as st', 'sc.scheme_id', '=', 'st.scheme_id')
+  .groupBy('sc.scheme_id')
+  .orderBy('sc.scheme_id', 'asc')
+
+  return rows
+
   /*
     1A- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`.
     What happens if we change from a LEFT join to an INNER join?
@@ -17,7 +27,21 @@ function find() { // EXERCISE A
   */
 }
 
-function findById(scheme_id) { // EXERCISE B
+async function findById(scheme_id) { // EXERCISE B
+  const findTest = await db('schemes as sc')
+  .select('sc.scheme_name', 'st.*')
+  .leftJoin('steps as st')
+  this.on('sc.scheme_id', '=', 'st.scheme_id')
+  .where ('sc.scheme_id', scheme_id)
+  .orderBy('st.step_number', 'asc')
+
+
+  const transformed = findTest.map(row => {
+    return { ...row, 
+    }
+  })
+
+  return transformed
   /*
     1B- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`:
 
@@ -108,7 +132,11 @@ function findSteps(scheme_id) { // EXERCISE C
   */
 }
 
-function add(scheme) { // EXERCISE D
+async function add(scheme) { // EXERCISE D
+  const [id] = await db('schemes as sc')
+  .insert(scheme)
+
+  return findById(id)
   /*
     1D- This function creates a new scheme and resolves to _the newly created scheme_.
   */
