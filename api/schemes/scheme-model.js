@@ -2,6 +2,7 @@ const db = require('../../data/db-config')
 
 async function find() { // EXERCISE A
   const rows = await db('schemes as sc')
+  .select('sc.*')
   .count('st.step_id as number_of_steps')
   .leftJoin('steps as st', 'sc.scheme_id', '=', 'st.scheme_id')
   .groupBy('sc.scheme_id')
@@ -29,15 +30,31 @@ async function find() { // EXERCISE A
 
 async function findById(scheme_id) { // EXERCISE B
   const findTest = await db('schemes as sc')
-  .select('sc.scheme_name', 'st.*')
-  .leftJoin('steps as st')
-  this.on('sc.scheme_id', '=', 'st.scheme_id')
+  .select('sc.scheme_name', 'st.*', 'sc.scheme_id')
+  .leftJoin('steps as st', 'sc.scheme_id', '=', 'st.scheme_id')
   .where ('sc.scheme_id', scheme_id)
   .orderBy('st.step_number', 'asc')
 
 
-  const transformed = findTest.map(row => {
-    return { ...row, 
+  // const transformed = findTest.map(row => {
+  //   return { ...row, [{step_id: row.step_id, 
+  //     step_number: row.step_number, 
+  //     instructions: row.instructions}]
+  //   }
+  // })
+  const transformed ={
+    scheme_id: findTest[0].scheme_id,
+    scheme_name: findTest[0].scheme_name,
+    steps: []
+  }
+
+  findTest.forEach(findTest => {
+    if (findTest.step_id){
+      transformed.steps.push({
+        step_id: findTest.step_id,
+        step_number: findTest.step_number,
+        instructions: findTest.instructions,
+      })
     }
   })
 
@@ -109,7 +126,12 @@ async function findById(scheme_id) { // EXERCISE B
   */
 }
 
-function findSteps(scheme_id) { // EXERCISE C
+async function findSteps(scheme_id) { // EXERCISE C
+  const findTest = await db('schemes as sc')
+  .select('sc.scheme_name', 'st.*', 'ec.scheme_id')
+  .leftJoin('steps as st', 'sc.scheme_id', '=', 'st.scheme_id')
+  .where ('sc.scheme_id', scheme_id)
+  .orderBy('st.step_number', 'asc')
   /*
     1C- Build a query in Knex that returns the following data.
     The steps should be sorted by step_number, and the array
@@ -142,7 +164,11 @@ async function add(scheme) { // EXERCISE D
   */
 }
 
-function addStep(scheme_id, step) { // EXERCISE E
+async function addStep(scheme_id, step) { // EXERCISE E
+  // const [scheme_id] = await db('step')
+  // .insert(scheme)
+
+  // return findById(scheme_id)
   /*
     1E- This function adds a step to the scheme with the given `scheme_id`
     and resolves to _all the steps_ belonging to the given `scheme_id`,
